@@ -1,38 +1,120 @@
-.App {
+.weather-container {
+  max-width: 1200px;
+  margin: auto;
+  padding: 30px 20px;
+  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+  color: #333;
+}
+
+.title {
   text-align: center;
+  margin-bottom: 30px;
+  font-size: 28px;
+  font-weight: 600;
 }
 
-.App-logo {
-  height: 40vmin;
-  pointer-events: none;
+.weather-grid {
+  display: grid;
+  grid-template-columns: 1fr 2fr;
+  gap: 30px;
 }
 
-@media (prefers-reduced-motion: no-preference) {
-  .App-logo {
-    animation: App-logo-spin infinite 20s linear;
-  }
+.card {
+  border-radius: 16px;
+  background: #ffffff;
+  box-shadow: 0 4px 16px rgba(0,0,0,0.1);
+  padding: 20px;
 }
 
-.App-header {
-  background-color: #282c34;
-  min-height: 100vh;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  font-size: calc(10px + 2vmin);
+.current-weather h3 {
+  font-size: 36px;
+  margin: 10px 0;
+}
+
+.condition-text {
+  font-size: 18px;
+  margin-bottom: 15px;
+}
+
+.weather-icon {
+  width: 100px;
+  margin-bottom: 10px;
+}
+
+.alert-box {
+  background: linear-gradient(135deg, #ff4e50, #f9d423);
   color: white;
+  padding: 20px;
+  border-radius: 12px;
+  margin-bottom: 25px;
+  box-shadow: 0 4px 12px rgba(0,0,0,0.2);
 }
 
-.App-link {
-  color: #61dafb;
+.forecast-section h4 {
+  margin-bottom: 15px;
 }
 
-@keyframes App-logo-spin {
-  from {
-    transform: rotate(0deg);
-  }
-  to {
-    transform: rotate(360deg);
+.forecast-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(170px, 1fr));
+  gap: 15px;
+}
+
+.forecast-card {
+  border-radius: 12px;
+  padding: 15px;
+  background: #f7f9fc;
+  transition: all 0.3s ease;
+  box-shadow: 0 2px 5px rgba(0,0,0,0.05);
+}
+
+.forecast-card:hover {
+  transform: translateY(-3px);
+  background: #eef4fa;
+}
+
+.forecast-card.selected {
+  border: 2px solid #4a90e2;
+  background: #e4f0ff;
+}
+
+.forecast-card h5 {
+  margin-bottom: 8px;
+}
+
+.hourly-forecast {
+  margin-top: 12px;
+  padding-top: 8px;
+  border-top: 1px solid #ccc;
+}
+
+.hour-box {
+  background: #f0f4f8;
+  border-radius: 6px;
+  padding: 8px;
+  margin-bottom: 8px;
+  font-size: 13px;
+}
+
+.save-btn {
+  display: inline-block;
+  margin-top: 15px;
+  padding: 10px 20px;
+  border-radius: 8px;
+  border: none;
+  background: linear-gradient(135deg, #4a90e2, #007aff);
+  color: white;
+  font-weight: bold;
+  cursor: pointer;
+  transition: background 0.3s;
+}
+
+.save-btn:hover {
+  background: linear-gradient(135deg, #007aff, #004a99);
+}
+
+@media (max-width: 1000px) {
+  .weather-grid {
+    grid-template-columns: 1fr;
   }
 }
