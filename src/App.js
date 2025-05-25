@@ -9,6 +9,10 @@ function Weather() {
   const [alertData, setAlertData] = useState(null);
   const [country, setCountry] = useState('');
   const [state, setState] = useState('');
+  const [hasSearched, setHasSearched] = useState(false);
+  const [loading, setLoading] = useState(false);
+  const [image, setImage] = useState(null); //declare the image to display related background image
+
 
   const countries = Country.getAllCountries();
   const states = State.getStatesOfCountry(country);
@@ -16,26 +20,40 @@ function Weather() {
   const APIKEY = "33859b42938f41308af85015250205";
   const FORECAST_DAYS = 3; // number of days for forecast
   const fetchWeatherData = async () => {
+    setHasSearched(true);
+    setLoading(true);
 
     const selectedState = states.find(s => s.isoCode === state);
     const selectedCountry = countries.find(c => c.isoCode === country);
 
     if (!country && !state) {
       alert("Please select a country and state selected.");
+      setLoading(false);
       return;
     } else if (!state) {
       alert("Please select a state.");
+      setLoading(false);
       return;
     } else if (!country) {
       alert("Please select a country.");
+      setLoading(false);
       return;
     }
 
     const query = `${selectedState.name},${selectedCountry.name}`;
-
+    const queryState = selectedState.name;
     const current_weather_api = `http://api.weatherapi.com/v1/current.json?key=${APIKEY}&q=${query}&aqi=no`;
     const forecas_api = `http://api.weatherapi.com/v1/forecast.json?key=${APIKEY}&q=${query}&days=${FORECAST_DAYS}&aqi=no&alerts=yes`;
     const weather_alert_api = `http://api.weatherapi.com/v1/alerts.json?key=${APIKEY}&q=${query}`;
+
+    const country_state_iconic_api = await fetch(`https://en.wikipedia.org/api/rest_v1/page/summary/${queryState}`);
+    
+    const image = await country_state_iconic_api.json();
+      if (image.originalimage?.source) {
+        setImage(image.originalimage.source); // Set the image from the API response
+      } else {
+        setImage(null); // No result
+      }
 
     try {
       const currentRes = await fetch(current_weather_api);
@@ -52,6 +70,8 @@ function Weather() {
     } catch (error) {
       console.error("Error fetching data:", error);
       alert("Failed to load weather data.");
+    } finally {
+      setLoading(false);
     }
 
   };
@@ -90,10 +110,29 @@ function Weather() {
           </button>
         </div>
       </div>
-
+      
+      {!hasSearched && (
+        <div className="alert alert-info">
+          <strong>Note:</strong><br></br>
+          Search for a country and state to view the current weather and 3-day forecast.
+        </div>
+      )}
+      {loading && (
+        <div className="text-center mb-4">
+          <div className="spinner-border text-primary" role="status">
+            <span className="sr-only"></span>
+          </div>
+          <p className="mt-2">Please be patient, We are getting related weather info for you...</p>
+        </div>
+      )}  
       {/* display the selected country's state current weather info from api */}
       {weatherData && (
         <div className="card mb-4">
+          {image ? (
+              <img src={image} alt="The iconic place of the state" className="card-img-top" style={{height: 'auto', width: '250px;', objectFit: 'cover'}} />
+            ) : (
+              <img src="https://via.placeholder.com/600x300?text=No+Image+Found" alt="No image found" className="card-img-top" />
+            )}
           <div className="card-body text-center">
             <h4>Current Weather in {weatherData.location.name}, {weatherData.location.country}</h4>
             <img src={weatherData.current.condition.icon} alt="Icon" />
