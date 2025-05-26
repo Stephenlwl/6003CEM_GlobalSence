@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react';
 import { Country, State } from 'country-state-city';
 import 'bootstrap/dist/css/bootstrap.min.css';
 import './App.css';
+import { useUser } from './UserData';
 
 function Weather() {
   const [weatherData, setWeatherData] = useState(null);
@@ -12,6 +13,8 @@ function Weather() {
   const [hasSearched, setHasSearched] = useState(false);
   const [loading, setLoading] = useState(false);
   const [image, setImage] = useState(null); //declare the image to display related background image
+
+  const { userId } = useUser();
 
   const countries = Country.getAllCountries();
   const states = State.getStatesOfCountry(country);
@@ -83,6 +86,35 @@ function Weather() {
     }
 
   };
+
+  useEffect(() => {
+    console.log("User ID from context:", userId);
+  }, [userId]);
+
+  async function saveWeatherData() {
+    try {
+     const response = await fetch('http://localhost:5000/save-weather', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        user_id: userId,
+        location: weatherData.location,
+        current: weatherData.current,
+        iconic_image: image,
+        saved_at: new Date()
+      })
+    });
+    
+    if (response.status == 200) {
+      alert("Weather data saved successfully.");
+    } else {
+      alert("Failed to save weather data. Please try again.");
+    }
+  } catch (error) {
+    console.error("Error saving weather data:", error);
+    alert("An error occurred while saving the data.");
+  }
+}
 
   return (
     <div className="container mt-5">
@@ -228,6 +260,7 @@ function Weather() {
                   </div>
                 </div>
               </div>
+              <button className="btn btn-secondary mt-3 w-100" onClick={saveWeatherData}>Save Current Weather</button>
             </div>
           </div>
         )}

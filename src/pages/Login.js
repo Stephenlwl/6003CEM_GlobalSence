@@ -3,8 +3,9 @@ import ReCAPTCHA from 'react-google-recaptcha';
 import 'bootstrap/dist/css/bootstrap.min.css';
 import './Login.css';
 import logo from '../images/logo.jpg';
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import { set } from 'mongoose';
+import { useUser } from './UserData';
 
 function Login() {
     const [email, setEmail] = useState('');
@@ -13,7 +14,9 @@ function Login() {
     const [errorMessage, setErrorMessage] = useState('');
     const [showPassword, setShowPassword] = useState(false);
     const captchaRef = useRef(null);
-
+    const navigate = useNavigate();
+    const { setUserId } = useUser();
+    
     const handleSubmit = async (e) => {
         e.preventDefault();
 
@@ -45,7 +48,9 @@ function Login() {
              
             if (data.success) {
                 alert(`Login Successfully! ${data.message} ${data.username}!`);
-                window.location.href = '/weather';
+                setUserId(data.user_id)
+                console.log('User ID:', data.user_id);
+                navigate('/weather');
             } else {
                 setErrorMessage(data.message);
             }
