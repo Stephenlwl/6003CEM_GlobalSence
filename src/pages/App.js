@@ -5,6 +5,9 @@ import './App.css';
 import { useUser } from './UserData';
 import { Link, useNavigate } from 'react-router-dom';
 import { v4 as uuidv4 } from 'uuid';
+import { BsClockHistory } from "react-icons/bs";
+import { WiHumidity, WiStrongWind, WiSunrise, WiSunset, WiRaindrop, WiBarometer, WiDaySunny, WiFog, WiCloudyGusts, WiThermometer } from "react-icons/wi";
+import { FaRegSun } from "react-icons/fa";
 
 function Weather() {
   const [weatherData, setWeatherData] = useState(null);
@@ -17,6 +20,7 @@ function Weather() {
   const [image, setImage] = useState(null); //declare the image to display related background image
   const [allIconicImage, setAllIconicImage] = useState([]); // declare the image to display related background image for all countries
   const [iconicVideo, setIconicVideo] = useState(null); // declare the video to display related background video
+  const [saving, setSaving] = useState(false);
 
   const { userId } = useUser();
   const weather_id = uuidv4(); // generate uniqueID for the weather data
@@ -146,6 +150,7 @@ function Weather() {
 
   // Save weather data to the db
   async function saveWeatherData() {
+    setSaving(true);
     try {
       const response = await fetch('http://localhost:5000/save-weather', {
         method: 'POST',
@@ -162,12 +167,15 @@ function Weather() {
 
       if (response.status === 200) {
         alert("Weather data saved successfully.");
+        setSaving(false);
       } else {
         alert("You have saved same weather data. Please try others.");
+        setSaving(false);
       }
     } catch (error) {
       console.error("Error saving weather data:", error);
       alert("An error occurred while saving the data.");
+      setSaving(false);
     }
   }
 
@@ -227,22 +235,21 @@ function Weather() {
       <div className="row">
         <div className="col-md-8 text-center">
           {weatherData && (
-            <div
-              className="card mb-4 text-white weather-section"
+            <div className="card mb-4 text-white weather-section"
               style={{
                 // the url of placeholder image is to indicate user when the image is not found
                 backgroundImage: `url(${image || "https://placehold.co/600x400/beige/white?text=No+Iconic+Image+Found"})`,
                 backgroundSize: 'contain', backgroundRepeat: 'no-repeat', backgroundAttachment: 'fixed', height: '500px'
               }}
             >
-              <div className="card-body text-center bg-dark bg-opacity-50 rounded">
+              <div className="card-body text-center bg-dark bg-opacity-50 rounded d-flex flex-column justify-content-center align-items-center h-500">
                 <h4>Current Weather in {weatherData.location.name}, {weatherData.location.country}</h4>
-                <img src={weatherData.current.condition.icon} alt="Icon" />
-                <p>{weatherData.current.condition.text}</p>
-                <p><strong>Temperature:</strong> {weatherData.current.temp_c ?? 'N/A'}°C</p>
-                <p><strong>Humidity:</strong> {weatherData.current.humidity ?? 'N/A'}%</p>
-                <p><strong>Wind:</strong> {weatherData.current.wind_kph ?? 'N/A'} kph</p>
-                <p><strong>Last Updated:</strong> {weatherData.current.last_updated ?? 'N/A'}</p>
+                <img src={weatherData.current.condition.icon} alt="Weather Icon" />
+                <p className="fs-5">{weatherData.current.condition.text}</p>
+                <p><WiDaySunny className="me-2" size={24} /><strong>Temperature:</strong> {weatherData.current.temp_c ?? 'N/A'}°C</p>
+                <p><WiHumidity className="me-2" size={24} /><strong>Humidity:</strong> {weatherData.current.humidity ?? 'N/A'}%</p>
+                <p><WiStrongWind className="me-2" size={24} /><strong>Wind:</strong> {weatherData.current.wind_kph ?? 'N/A'} kph</p>
+                <p><BsClockHistory className="me-2" /><strong>Last Updated:</strong> {weatherData.current.last_updated ?? 'N/A'}</p>
               </div>
             </div>
           )}
@@ -254,14 +261,15 @@ function Weather() {
             <>
 
               {alertData && (
-                <div className="mt-3 alert alert-danger text-start">
-                  <p className="text-danger">Weather Alerts:</p>
-                  <p><strong>Effective Date: </strong>{alertData.alerts.alert[0].effective ?? 'N/A'}</p>
-                  <p><strong>Event: </strong>{alertData.alerts.alert[0].event ?? 'N/A'}</p>
-                  <p><strong>Severity: </strong>{alertData.alerts.alert[0].severity ?? 'N/A'}</p>
-                  <p><strong>Area: </strong>{alertData.alerts.alert[0].areas ?? 'N/A'}</p>
-                  <p><strong>Description: </strong>{alertData.alerts.alert[0].desc ?? 'N/A'}</p>
-                  <p><strong>Instructions: </strong>{alertData.alerts.alert[0].instruction ?? 'N/A'}</p>
+                <div className="alert alert-danger text-start">
+                  <h6><span className="badge bg-danger me-2">Weather Alert:</span>{alertData.alerts.alert[0].event}</h6>
+                  <ul className="mb-0">
+                    <li><strong>Effective:</strong> {new Date(alertData.alerts.alert[0].effective).toLocaleString() ?? 'N/A'}</li>
+                    <li><strong>Severity:</strong> {alertData.alerts.alert[0].severity ?? 'N/A'}</li>
+                    <li><strong>Area:</strong> {alertData.alerts.alert[0].areas ?? 'N/A'}</li>
+                    <li><strong>Description:</strong> {alertData.alerts.alert[0].desc ?? 'N/A'}</li>
+                    <li><strong>Instructions:</strong> {alertData.alerts.alert[0].instruction ?? 'N/A'}</li>
+                  </ul>
                 </div>
               )}
             </>
@@ -270,55 +278,61 @@ function Weather() {
         {weatherData && (
           <div className="col-md-4">
             <div className="card text-dark mb-4 shadow-sm">
+              <div className="card-header bg-primary text-white text-center"><h5 className="mb-0">Live Weather Summary</h5></div>
               <div className="card-body">
-                <h5 className="card-title text-center mb-4">Additional Weather Details</h5>
-
                 {/* pressure, visibility, humidity */}
                 <div className="row text-center mb-3">
                   <div className="col-md-4 border-end">
-                    <p className="mb-1"><strong>Pressure</strong></p>
+                    <p className="mb-1"><WiBarometer className="me-1" /> <strong>Pressure</strong></p>
                     <p>{weatherData.current.pressure_mb ?? 'N/A'} mb</p>
                   </div>
                   <div className="col-md-4 border-end">
-                    <p className="mb-1"><strong>Visibility</strong></p>
+                    <p className="mb-1"><WiFog className="me-1" /> <strong>Visibility</strong></p>
                     <p>{weatherData.current.vis_km ?? 'N/A'} km</p>
                   </div>
                   <div className="col-md-4">
-                    <p className="mb-1"><strong>Humidity</strong></p>
-                    <p>{weatherData.current.humidity ?? 'N/A '}%</p>
+                    <p className="mb-1"><WiHumidity className="me-1" /> <strong>Humidity</strong></p>
+                    <p>{weatherData.current.humidity ?? 'N/A'}%</p>
                   </div>
                 </div>
 
                 {/* wind */}
                 <div className="row text-center mb-3">
                   <div className="col-md-12">
-                    <p className="mb-1"><strong>Wind</strong></p>
+                    <p className="mb-1"><WiCloudyGusts className="me-1" /> <strong>Wind</strong></p>
                     <p>{weatherData.current.wind_dir} at {weatherData.current.wind_kph} kph</p>
                   </div>
                 </div>
 
-                {/* time-based temperature */}
-                <h6 className="text-center mt-4">Temperature by Time of Day</h6>
-                <div className="row text-center">
-                  <div className="col-md-3 border-end">
-                    <p className="mb-1"><strong>Morning</strong></p>
-                    <p>{forecastData?.forecast?.forecastday[0]?.hour[8]?.temp_c ?? 'N/A'}°C</p>
+                <h6 className="text-center mt-4 border-bottom pb-2">Temperature by Time of Day</h6>
+                <div className="row row-cols-2 g-2 mt-2 text-center">
+                  <div className="col">
+                    <div className="p-2 rounded bg-light shadow-sm">
+                      <p className="mb-1"><strong>Morning</strong></p>
+                      <p>{forecastData?.forecast?.forecastday[0]?.hour[8]?.temp_c ?? 'N/A'}°C</p>
+                    </div>
                   </div>
-                  <div className="col-md-3 border-end">
-                    <p className="mb-1"><strong>Afternoon</strong></p>
-                    <p>{forecastData?.forecast?.forecastday[0]?.hour[14]?.temp_c ?? 'N/A'}°C</p>
+                  <div className="col">
+                    <div className="p-2 rounded bg-warning bg-opacity-50 shadow-sm">
+                      <p className="mb-1"><strong>Afternoon</strong></p>
+                      <p>{forecastData?.forecast?.forecastday[0]?.hour[14]?.temp_c ?? 'N/A'}°C</p>
+                    </div>
                   </div>
-                  <div className="col-md-3 border-end">
-                    <p className="mb-1"><strong>Evening</strong></p>
-                    <p>{forecastData?.forecast?.forecastday[0]?.hour[18]?.temp_c ?? 'N/A'}°C</p>
+                  <div className="col">
+                    <div className="p-2 rounded bg-secondary text-white shadow-sm">
+                      <p className="mb-1"><strong>Evening</strong></p>
+                      <p>{forecastData?.forecast?.forecastday[0]?.hour[18]?.temp_c ?? 'N/A'}°C</p>
+                    </div>
                   </div>
-                  <div className="col-md-3">
-                    <p className="mb-1"><strong>Night</strong></p>
-                    <p>{forecastData?.forecast?.forecastday[0]?.hour[22]?.temp_c ?? 'N/A'}°C</p>
+                  <div className="col">
+                    <div className="p-2 rounded bg-dark text-white shadow-sm">
+                      <p className="mb-1"><strong>Night</strong></p>
+                      <p>{forecastData?.forecast?.forecastday[0]?.hour[22]?.temp_c ?? 'N/A'}°C</p>
+                    </div>
                   </div>
                 </div>
               </div>
-              <button className="btn btn-secondary mt-3 w-100" onClick={saveWeatherData}>Save Current Weather</button>
+              <button className="btn btn-outline-secondary mt-3 w-100" onClick={saveWeatherData} disabled={saving}>{saving ? "saving..." : "Save Current Weather"}</button>
             </div>
           </div>
         )}
@@ -327,19 +341,41 @@ function Weather() {
 
       {/* the selected country's forecast data from api */}
       {forecastData?.forecast?.forecastday && (
-        <div className="card mb-4">
+        <div className="card mb-4 border-1 shadow-sm rounded-4">
           <div className="card-body">
-            <h5>3-Day Forecast</h5>
-            <div className="row">
+            <h5 className="text-center mb-4 fw-bold">3-Day Forecast</h5>
+            <div className="row g-4">
               {forecastData.forecast.forecastday.map((forecast, i) => (
                 <div className="col-md-4" key={i}>
-                  <div className="border p-3 mb-2">
-                    <h6>{forecast.date}</h6>
-                    <img src={forecast.day.condition.icon} alt="icon" />
-                    <p>{forecast.day.condition.text}</p>
-                    <p><strong>Max: </strong>{forecast.day.maxtemp_c}°C</p>
-                    <p><strong>Min: </strong>{forecast.day.mintemp_c}°C</p>
-
+                  <div className="card text-center border-0 shadow mb-3 p-3 bg-white rounded-4">
+                    <h6 className="fw-semibold mb-2">{forecast.date}</h6>
+                    <div className="d-flex justify-content-center mb-3">
+                      <img src={forecast.day.condition.icon} alt="Condition Icon" style={{ width: '60px', height: '60px' }}/>
+                    </div>
+                    <p className="text-muted mb-2">{forecast.day.condition.text}</p>
+                    <div className="d-flex justify-content-around mt-3">
+                      <div>
+                        <WiThermometer size={28} className="text-danger" />
+                        <p className="mb-0"><strong>Max:</strong> {forecast.day.maxtemp_c}°C</p>
+                      </div>
+                      <div>
+                        <WiThermometer size={28} className="text-primary" />
+                        <p className="mb-0"><strong>Min:</strong> {forecast.day.mintemp_c}°C</p>
+                      </div>
+                    </div>
+                    <hr className="my-3" />
+                    <div className="text-start small px-2">
+                      <p><WiHumidity size={20} /> <strong>Humidity:</strong> {forecast.day.avghumidity}%</p>
+                      <p><WiRaindrop size={20} /> <strong>Rain Chance:</strong> {forecast.day.daily_chance_of_rain}%</p>
+                      <p><WiStrongWind size={20} /> <strong>Wind:</strong> {forecast.day.maxwind_kph} kph</p>
+                      <p><FaRegSun size={18} className="text-warning" /> <strong>UV Index:</strong> {forecast.day.uv}</p>
+                      {forecast.astro && (
+                        <>
+                          <p><WiSunrise size={22} className="text-orange" /> <strong>Sunrise:</strong> {forecast.astro.sunrise}</p>
+                          <p><WiSunset size={22} className="text-danger" /> <strong>Sunset:</strong> {forecast.astro.sunset}</p>
+                        </>
+                      )}
+                    </div>
                   </div>
                 </div>
               ))}
@@ -356,7 +392,7 @@ function Weather() {
             <div className="row">
               {allIconicImage.map((iconicPlace, index) => (
                 <div key={index} className="col-6 col-md-4 col-lg-3 mb-3">
-                  <img src={iconicPlace.largeImageURL} alt={`Iconic Place ${index + 1}`} className="img-fluid rounded shadow-sm"/>
+                  <img src={iconicPlace.largeImageURL} alt={`Iconic Place ${index + 1}`} className="img-fluid rounded shadow-sm" />
                   <label className="d-block mt-2 text-muted" style={{ fontSize: '0.9rem' }}>
                     {iconicPlace.tags || 'No tags available'}
                   </label>
@@ -379,7 +415,6 @@ function Weather() {
           </div>
         </div>
       )}
-
     </div>
   );
 }

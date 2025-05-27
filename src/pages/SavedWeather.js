@@ -83,7 +83,7 @@ function SavedWeather() {
                                     <div className="bg-light p-3 rounded mb-3 text-center">
                                         <div className="d-flex flex-column align-items-center">
                                             <img
-                                                src={`https:${item.current?.condition?.icon ?? ''}`}
+                                                src={item.current.condition.icon}
                                                 alt="Condition Icon"
                                                 style={{ width: '64px', height: '64px' }}
                                             />
@@ -91,7 +91,6 @@ function SavedWeather() {
                                             <small className="text-muted">Last Updated: {new Date(item.current.last_updated).toLocaleString()}</small>
                                         </div>
                                     </div>
-                                    <span className="badge bg-info text-dark mb-2">{item.current?.condition?.text}</span>
                                     <ul className="list-unstyled mb-3">
                                         <li><FaTemperatureHigh className="me-2 text-danger" /> <strong>Temp:</strong> {item.current.temp_c ?? 'N/A'}°C</li>
                                         <li><WiHumidity className="me-2 text-primary" /> <strong>Humidity:</strong> {item.current.humidity ?? 'N/A'}%</li>
