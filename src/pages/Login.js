@@ -4,7 +4,6 @@ import 'bootstrap/dist/css/bootstrap.min.css';
 import './Login.css';
 import logo from '../images/logo.jpg';
 import { Link, useNavigate } from 'react-router-dom';
-import { set } from 'mongoose';
 import { useUser } from './UserData';
 
 function Login() {
