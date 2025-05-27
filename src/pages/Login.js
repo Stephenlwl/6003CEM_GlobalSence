@@ -15,7 +15,7 @@ function Login() {
     const captchaRef = useRef(null);
     const navigate = useNavigate();
     const { setUserId } = useUser();
-    
+
     const handleSubmit = async (e) => {
         e.preventDefault();
 
@@ -44,7 +44,7 @@ function Login() {
             });
 
             const data = await response.json();
-             
+
             if (data.success) {
                 alert(`Login Successfully! ${data.message} ${data.username}!`);
                 setUserId(data.user_id)
@@ -68,9 +68,9 @@ function Login() {
             <div className="row shadow-lg rounded-4 overflow-hidden w-90">
                 {/* left container login intro */}
                 <div className="col-lg-6 d-none d-lg-flex text-center flex-column justify-content-center align-items-center bg-dark text-white p-5">
-                        <img src={logo} alt="Logo" className="mb-4" style={{width: '300px'}}/>
-                        <h1 className="mb-4">Welcome to Global Sence!</h1>
-                        <p>Log in to explore the weather of countries on this platform and save the weather information for your preferred locations.</p>
+                    <img src={logo} alt="Logo" className="mb-4" style={{ width: '300px' }} />
+                    <h1 className="mb-4">Welcome to Global Sence!</h1>
+                    <p>Log in to explore the weather of countries on this platform and save the weather information for your preferred locations.</p>
                 </div>
 
                 {/* right container login form */}
@@ -79,10 +79,10 @@ function Login() {
                         Don't have an account? <Link to="/signup">Signup</Link>
                     </p>
                     <h2 className="text-center mb-4">Login</h2>
-                    
+
                     {/* display error message */}
                     {errorMessage && <div className="mt-3 alert alert-danger w-100 text-center">{errorMessage}</div>}
-                    
+
                     {/* login form container */}
                     <form onSubmit={handleSubmit}>
                         <div className="mb-3">
@@ -132,8 +132,8 @@ function Login() {
                             />
                         </div>
                         <div className="d-flex align-items-center justify-content-center">
-                        <button type="submit" className="btn btn-primary w-50">Log In</button>
-                    </div>
+                            <button type="submit" className="btn btn-primary w-50">Log In</button>
+                        </div>
                     </form>
                 </div>
             </div>
