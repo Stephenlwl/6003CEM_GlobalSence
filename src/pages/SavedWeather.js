@@ -4,12 +4,52 @@ import 'bootstrap/dist/css/bootstrap.min.css';
 import { useNavigate } from 'react-router-dom';
 import { FaCloudSun, FaMapMarkerAlt, FaTemperatureHigh, FaWind } from 'react-icons/fa';
 import { WiHumidity } from 'react-icons/wi';
+import { BsArrowLeftCircle } from 'react-icons/bs';
 
 function SavedWeather() {
     const { userId } = useUser();
     const [savedData, setSavedData] = useState([]);
     const [loading, setLoading] = useState(true);
+    const [editItem, setEditItem] = useState(null);
+    const [showEditModal, setShowEditModal] = useState(false);
     const navigate = useNavigate();
+
+    const EditWeather = (item) => {
+        setEditItem({ ...item }); // clone the item for edit and update purpose
+        setShowEditModal(true);
+        console.log("Editing item:", item);
+    };
+
+    // update the value immediately in the edit modal after save the changes
+    const handleEditChange = (field, value) => {
+        setEditItem(prev => ({ ...prev, [field]: value })); 
+    };
+
+    const handleEditSave = async () => {
+        try {
+            const response = await fetch(`http://localhost:5000/saved-weather/${userId}/${editItem.weather_id}`, {
+                method: 'PUT',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                    note: editItem.notes || '',
+                    custom_label: editItem.custom_label || '',
+                    tags: editItem.tags || []
+                })
+            });
+
+            if (response.ok) {
+                alert('Weather record updated.');
+                setSavedData(prev => prev.map(item => item.weather_id === editItem.weather_id ? editItem : item));
+                setShowEditModal(false);
+            } else {
+                alert('Update failed.');
+            }
+        } catch (error) {
+            console.error('Update error:', error);
+            alert('An error occurred during update.');
+        }
+    };
+
 
     const handleDelete = async (id) => {
         if (!window.confirm('Are you sure you want to delete this saved weather record?')) return;
@@ -55,7 +95,7 @@ function SavedWeather() {
         <div className="container mt-5">
             <h3 className="mb-4"><FaCloudSun className="me-2" />Your Saved Weather Records</h3>
             <button className="btn btn-outline-secondary mb-3" onClick={() => navigate('/weather')}>
-                ← Back to Weather Search
+                <BsArrowLeftCircle className="me-2" /> Back to Weather Search
             </button>
 
             {loading ? (
@@ -98,17 +138,70 @@ function SavedWeather() {
                                         <li><FaMapMarkerAlt className="me-2 text-warning" /> <strong>Direction:</strong> {item.current.wind_dir ?? 'N/A'}</li>
                                         <li><strong>Pressure:</strong> {item.current.pressure_mb ?? 'N/A'} mb</li>
                                     </ul>
+                                    <hr />
+                                    <p className="card-text" >
+                                        <strong>Notes:</strong> {item.note || 'No notes provided.'}
+                                        <br />
+                                        <strong>Custom Label:</strong> {item.custom_label || 'No label provided.'}
+                                        <br />
+                                        <strong>Tags:</strong> {item.tags && item.tags.length > 0 ? item.tags.join(', ') : 'No tags provided.'}
+                                    </p>
                                     <p className="text-muted">
                                         <small><strong>Saved At:</strong> {new Date(item.saved_at).toLocaleString()}</small>
                                     </p>
                                     <div className="d-flex justify-content-end mt-3">
-                                        <button className="btn btn-outline-warning btn-sm me-2">Edit</button>
+                                        <button className="btn btn-outline-warning btn-sm me-2" onClick={() => EditWeather(item)}>Edit</button>
                                         <button className="btn btn-outline-danger btn-sm" onClick={() => handleDelete(item.weather_id)}>Delete</button>
                                     </div>
                                 </div>
                             </div>
                         </div>
                     ))}
+                    {showEditModal && editItem && (
+                        <div className="modal fade show d-block" tabIndex="-1" role="dialog" style={{ backgroundColor: 'rgba(0,0,0,0.5)' }}>
+                            <div className="modal-dialog modal-lg" role="document">
+                                <div className="modal-content">
+                                    <div className="modal-header">
+                                        <h5 className="modal-title">Edit Weather Record</h5>
+                                        <button type="button" className="btn-close" onClick={() => setShowEditModal(false)}></button>
+                                    </div>
+                                    <div className="modal-body">
+                                        <div className="mb-3">
+                                            <label className="form-label">Custom Label</label>
+                                            <input
+                                                type="text"
+                                                className="form-control"
+                                                value={editItem.custom_label || ''}
+                                                onChange={(e) => handleEditChange('custom_label', e.target.value)}
+                                            />
+                                        </div>
+                                        <div className="mb-3">
+                                            <label className="form-label">Tags (comma-separated)</label>
+                                            <input
+                                                type="text"
+                                                className="form-control"
+                                                value={editItem.tags?.join(', ') || ''}
+                                                onChange={(e) => handleEditChange('tags', e.target.value.split(',').map(tag => tag.trim()))}
+                                            />
+                                        </div>
+                                        <div className="mb-3">
+                                            <label className="form-label">Notes (Optional)</label>
+                                            <textarea
+                                                className="form-control"
+                                                rows="3"
+                                                value={editItem.notes || ''}
+                                                onChange={(e) => handleEditChange('notes', e.target.value)}
+                                            />
+                                        </div>
+                                    </div>
+                                    <div className="modal-footer">
+                                        <button type="button" className="btn btn-secondary" onClick={() => setShowEditModal(false)}>Cancel</button>
+                                        <button type="button" className="btn btn-primary" onClick={handleEditSave}>Save Changes</button>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    )}
                 </div>
             )}
         </div>
