@@ -8,6 +8,7 @@ import { v4 as uuidv4 } from 'uuid';
 import { BsClockHistory } from "react-icons/bs";
 import { WiHumidity, WiStrongWind, WiSunrise, WiSunset, WiRaindrop, WiBarometer, WiDaySunny, WiFog, WiCloudyGusts, WiThermometer } from "react-icons/wi";
 import { FaRegSun } from "react-icons/fa";
+import { FiLogOut } from "react-icons/fi";
 
 function Weather() {
   const [weatherData, setWeatherData] = useState(null);
@@ -74,14 +75,14 @@ function Weather() {
     setHasSearched(true);
     setLoading(true);
 
-    const selectedState = states.find(s => s.isoCode === state);
     const selectedCountry = countries.find(c => c.isoCode === country);
+    const selectedState = states.find(s => s.isoCode === state);
 
     if (!country && !state) {
       alert("Please select a country and state selected.");
       setLoading(false);
       return;
-    } else if (!state) {
+    } else if (!state ) {
       alert("Please select a state.");
       setLoading(false);
       return;
@@ -181,8 +182,14 @@ function Weather() {
 
   return (
     <div className="container mt-5">
-      <h2 className="mb-4">Weather Forecast</h2>
-
+      <div className="row mb-4">
+        <div className="col-md-8">
+          <h2 className="mb-4">Weather Forecast</h2>
+        </div>
+        <div className="col-md-4 text-end">
+          <Link to="/login" className="btn btn-outline-secondary"><FiLogOut /> Logout</Link>
+        </div>
+      </div>
       <div className="row mb-4">
         <div className="col-md-4 mb-3">
           <label>Country</label>

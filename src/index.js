@@ -15,7 +15,6 @@ root.render(
   <UserProvider>
     <BrowserRouter>
       <Routes>
-        <Route path="/" element={<Login />} />
         <Route path="/weather" element={<App />} />
         <Route path="/login" element={<Login />} />
         <Route path="/signup" element={<Signup />} />

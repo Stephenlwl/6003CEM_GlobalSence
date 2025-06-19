@@ -1,4 +1,4 @@
-import React, { useState, useRef } from 'react';
+import React, { useState } from 'react';
 import ReCAPTCHA from 'react-google-recaptcha';
 import 'bootstrap/dist/css/bootstrap.min.css';
 import './Login.css';
@@ -12,9 +12,17 @@ function Login() {
     const [captchaToken, setCaptchaToken] = useState('');
     const [errorMessage, setErrorMessage] = useState('');
     const [showPassword, setShowPassword] = useState(false);
-    const captchaRef = useRef(null);
     const navigate = useNavigate();
     const { setUserId } = useUser();
+
+    const verifyCaptcha = async (token) => {
+            const response = await fetch('http://localhost:5000/verify-recaptcha', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ token })
+            });
+            return await response.json();
+        };
 
     const handleSubmit = async (e) => {
         e.preventDefault();
@@ -34,7 +42,13 @@ function Login() {
             return;
         }
 
-        const loginData = { email, password };
+        const loginData = { email, password};
+        const captchaResult = await verifyCaptcha(captchaToken);
+
+        if (!captchaResult.success) {
+            setErrorMessage("reCAPTCHA verification failed.");
+            return;
+        }
 
         try {
             const response = await fetch('http://localhost:5000/verify-user-input', {
@@ -59,7 +73,7 @@ function Login() {
         }
     };
 
-    const handleCaptchaChange = (token) => {
+    const handleCaptchaChange = async(token) => {
         setCaptchaToken(token);
     };
 
@@ -126,9 +140,8 @@ function Login() {
 
                         <div className="mb-3">
                             <ReCAPTCHA
-                                sitekey="6LeO394pAAAAAIfJUVp5Z0c_cOdR-xVFsEn_mDYD"
+                                sitekey="6LfPW2YrAAAAAMTKF8zG9CuRQOU4MFooq1owyKkj"
                                 onChange={handleCaptchaChange}
-                                ref={captchaRef}
                             />
                         </div>
                         <div className="d-flex align-items-center justify-content-center">

@@ -1,10 +1,9 @@
 import React, { useState } from 'react';
-import { Link } from 'react-router-dom';
 import { v4 as uuidv4 } from 'uuid';
 import './Signup.css';
 import 'bootstrap/dist/css/bootstrap.min.css';
 import logo from '../images/logo.jpg';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, Link } from 'react-router-dom';
 
 const Signup = () => {
     const [showPassword, setShowPassword] = useState(false);
@@ -35,7 +34,7 @@ const Signup = () => {
             return;
         }
 
-        if (!email.includes('@')) {
+        if (!email.includes('@') || !email.includes('.')) {
             setErrorMessage("Please enter a valid email address.");
             return;
         }
@@ -65,8 +64,10 @@ const Signup = () => {
 
             if (data.success) {
                 alert(`Signup Successfully! Welcome ${data.username}!`);
+                setErrorMessage('');
                 navigate('/login');
             } else {
+                setErrorMessage('');
                 alert(data.message);
             }
         } catch (error) {
