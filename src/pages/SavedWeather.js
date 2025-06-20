@@ -31,7 +31,7 @@ function SavedWeather() {
                 method: 'PUT',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({
-                    note: editItem.notes || '',
+                    note: editItem.note || '',
                     custom_label: editItem.custom_label || '',
                     tags: editItem.tags || []
                 })
@@ -189,8 +189,8 @@ function SavedWeather() {
                                             <textarea
                                                 className="form-control"
                                                 rows="3"
-                                                value={editItem.notes || ''}
-                                                onChange={(e) => handleEditChange('notes', e.target.value)}
+                                                value={editItem.note || ''}
+                                                onChange={(e) => handleEditChange('note', e.target.value)}
                                             />
                                         </div>
                                     </div>

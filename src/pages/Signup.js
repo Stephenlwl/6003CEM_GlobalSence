@@ -63,7 +63,7 @@ const Signup = () => {
             const data = await response.json();
 
             if (data.success) {
-                alert(`Signup Successfully! Welcome ${data.username}!`);
+                alert(`Signup Successfully! Welcome ${username}!`);
                 setErrorMessage('');
                 navigate('/login');
             } else {
